@@ -53,12 +53,12 @@ class DecisionNode(Node):
             self.Childs[value].Visualize(tabs + 1)
 
     def calculateGini(labels, data: pd.DataFrame):
-        Gini = 0
+        Gini = 1
         for label in labels:
             prob = len(query(data, "satisfaction", label)) / len(data)
             if prob == 0:
                 continue
-            Gini += prob * (1 - prob)
+            Gini -= prob * prob
         return Gini
 
     def calculateGain(self, feature, importance):
@@ -67,7 +67,7 @@ class DecisionNode(Node):
         for item in domain:
             nextData = query(self.data, feature, item)
             if len(nextData) > 0:
-                totalChildImportance += importance(self.labels, nextData)
+                totalChildImportance += len(nextData) * importance(self.labels, nextData)
         averageChildImportance = totalChildImportance / len(domain)
         parentImportance = importance(self.labels, self.data)
         return parentImportance - averageChildImportance

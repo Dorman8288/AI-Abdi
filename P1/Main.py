@@ -25,7 +25,7 @@ def Categorization1(TrainData, TestData, features, categorizedFeatures):
         if feature == "id" or feature == "Unnamed: 0":
             continue
         if feature in categorizedFeatures:
-            TrainData[feature], bins = categorize(TrainData[feature], 0.3)
+            TrainData[feature], bins = categorize(TrainData[feature], 0.25)
             TestData[feature] = series = pd.cut(TestData[feature], bins, duplicates="drop").astype(str)
         series = TrainData[feature]
         domain = set()
@@ -33,6 +33,7 @@ def Categorization1(TrainData, TestData, features, categorizedFeatures):
             if item not in domain:
                 domain.add(item)
         featuresDomains[feature] = domain
+    plt.show()
     return featuresDomains
 
 def EncodeData(data: pd.DataFrame, featureDomains):
@@ -67,7 +68,7 @@ def Test(TestData, tree):
 DataPath = "Data/Airplane.csv"
 DataFrame = pd.read_csv(DataPath)
 TestData = DataFrame.iloc[:2000]
-TrainData = DataFrame.iloc[2000:]
+TrainData = DataFrame.iloc[80000:]
 features = TestData.keys()
 categorizedFeatures = set(["Age",
                            "Flight Distance",
