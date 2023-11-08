@@ -68,7 +68,7 @@ def Test(TestData, tree):
 DataPath = "Data/Airplane.csv"
 DataFrame = pd.read_csv(DataPath)
 TestData = DataFrame.iloc[:2000]
-TrainData = DataFrame.iloc[80000:]
+TrainData = DataFrame.iloc[2000:]
 features = TestData.keys()
 categorizedFeatures = set(["Age",
                            "Flight Distance",
