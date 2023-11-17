@@ -54,14 +54,22 @@ def FunctionWithNoise(function, Amount, intensity, range):
     def Function(x):
         return function(x) + noise[int(x * 1000)]
     return Function
-        
 
+def f1(x):
+    if(x == 0):
+        return 1
+    return (math.sin(math.pi * x) / (x * math.pi)) * 5
 
+def F1(x):
+    if(x == 0):
+        return 0
+    return 1 / (x / 10)
+    
 device = "cpu"
 TrainSize = 10000
 yrange = (-10, 10)
 xrange = (-7, 7)
-function = FunctionWithNoise(math.sin, 0, 0.5, xrange)
+function = math.sin
 loss = nn.MSELoss()
 learningRate = 0.1
 
@@ -70,7 +78,6 @@ dataset = FunctionDataset(function, TrainSize, xrange)
 dataLoader = DataLoader(dataset, batch_size=100)
 Model = BasicModel([1, 10, 20, 10, 1], nn.ReLU(), nn.Tanh()).to(device)
 Train(Model, dataLoader, function, xrange, yrange, loss, learningRate)
-
 
 
 

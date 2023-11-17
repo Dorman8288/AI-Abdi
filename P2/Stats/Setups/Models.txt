@@ -1,0 +1,35 @@
+######## Sin Function ########
+device = "cpu"
+TrainSize = 10000
+yrange = (-10, 10)
+xrange = (-7, 7)
+function = math.sin
+loss = nn.MSELoss()
+learningRate = 0.1
+
+
+dataset = FunctionDataset(function, TrainSize, xrange)
+dataLoader = DataLoader(dataset, batch_size=100)
+Model = BasicModel([1, 10, 20, 10, 1], nn.ReLU(), nn.Tanh()).to(device)
+Train(Model, dataLoader, function, xrange, yrange, loss, learningRate)
+##############################
+
+######## Sin Function ########
+def F1(x):
+    if(x == 0):
+        return 0
+    return 1 / (x / 10)
+device = "cpu"
+TrainSize = 10000
+yrange = (-10, 10)
+xrange = (1, 10)
+function = F1
+loss = nn.L1Loss()
+learningRate = 0.3
+
+
+dataset = FunctionDataset(function, TrainSize, xrange)
+dataLoader = DataLoader(dataset, batch_size=100)
+Model = BasicModel([1, 100, 100, 50, 1], nn.ReLU(), None).to(device)
+Train(Model, dataLoader, function, xrange, yrange, loss, learningRate)
+##############################

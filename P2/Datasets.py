@@ -8,6 +8,8 @@ from torchvision.transforms import ToTensor
 import random
 import math
 import copy
+import cv2
+import torchvision
 
 class FunctionDataset(Dataset):
     def __init__(self, Function, Count, Range):
@@ -60,6 +62,28 @@ class CustomFunctionDataset(Dataset):
         x, y = self.Data[idx]
         return (torch.tensor([x], dtype=torch.float64), torch.tensor([y], dtype=torch.float64))
     
+class NoisyCifarDataSet(Dataset):
+    def __init__(self, transform, mean, variance, train):
+        self.dataset = torchvision.datasets.CIFAR10(root='./data', train=train, download=True, transform=transform)
+        self.Count = len(self.dataset)
+        self.Data = []
+        for i in range(self.Count):
+            img = torch.Tensor.numpy(self.dataset[i][0])
+            gauss_noise = np.random.normal(mean, variance, (3, 32, 32))
+            gauss_noise = gauss_noise.reshape((3, 32, 32))
+            gn_img = img + gauss_noise
+            self.Data.append((torch.tensor(gn_img, dtype=torch.float64), torch.tensor(gauss_noise, dtype=torch.float64)))
+
+    def __len__(self):
+        return self.Count
+
+    def __getitem__(self, idx):
+        x, y = self.Data[idx]
+        return x, y
+    
+
+
+
 class AirPlaneDatabase(Dataset):
     def __init__(self, train) -> None:
         super().__init__()

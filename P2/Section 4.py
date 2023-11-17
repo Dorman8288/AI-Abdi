@@ -59,21 +59,20 @@ def FunctionWithNoise(function, Amount, intensity, range):
         
 
 
+
 device = "cpu"
 TrainSize = 7
-yrange = (2, 7)
-xrange = (3, 16)
+yrange = (-10, 10)
+xrange = (-7, 7)
 loss = nn.MSELoss()
-learningRate = 0.01
+learningRate = 0.005
 
-
-
-dataset = CustomFunctionDataset([3.6, 4.7, 5.8, 6.7, 7.7, 8.4, 9.1, 10.7, 11.1, 12.4, 12.6, 13.6, 14.5, 14.7, 15.5],
-                                [5.3, 6.6, 5.6, 4, 6.0, 8.2, 6.1, 6.6, 5.9, 6.4, 5.7, 6.2, 5.6, 3.7, 3])
+#dataset = CustomFunctionDataset([3.6, 4.7, 5.8, 6.7, 7.7, 8.4, 9.1, 10.7, 11.1, 12.4, 12.6, 13.6, 14.5, 14.7, 15.5],
+#                                [5.3, 6.6, 5.6, 4, 6.0, 8.2, 6.1, 6.6, 5.9, 6.4, 5.7, 6.2, 5.6, 3.7, 3])
+dataset = RandomFunctionDataset(TrainSize, xrange)
 dataLoader = DataLoader(dataset, batch_size=1)
 Model = BasicModel([1, 50, 200, 200, 200, 100, 1], nn.ReLU(), None).to(device)
 Train(Model, dataLoader, xrange, yrange, loss, learningRate)
-
 
 
 
