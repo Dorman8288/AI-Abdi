@@ -47,10 +47,10 @@ class ExpressionTree:
         else:
             return node.value
 
-    def Mutate(a, b):
+    def crossover(a, b):
+        a = copy.deepcopy(a)
+        b = copy.deepcopy(b)
         while True:
-            a = copy.deepcopy(a)
-            b = copy.deepcopy(b)
             choice_A = np.random.randint(0, len(a.nodes))
             choice_B = np.random.randint(0, len(b.nodes))
             node_A = a.nodes[choice_A]
@@ -80,6 +80,7 @@ class ExpressionTree:
                 parent_A.right, parent_B.child = parent_B.child, parent_A.right
         if type(parent_A) is UnaryOperandNode and type(parent_B) is UnaryOperandNode:
             parent_A.child, parent_B.child = parent_B.child, parent_A.child
+        node_A.parent, node_B.parent = parent_B, parent_A
         return a, b
 
     def Evolve(self):
@@ -190,7 +191,7 @@ class ExpressionTree:
         for (variables, value) in points:
             pred = self.root.getValue(variables)
             loss += (pred - value) * (pred - value)
-        return math.sqrt(loss / len(points))
+        return loss / len(points)
 
     def evaluate(self, variableValues):
         try:
