@@ -1,9 +1,13 @@
 import numpy as np
 import copy 
+import math
 
 class ExpressionTree:
-    def __init__(self, variables, BinaryOperators, UnaryOperators, staticRange, continuos, optimizationStep) -> None:
+    def __init__(self, variables, BinaryOperators, UnaryOperators, staticRange, continuos, optimizationStep, initT, coolingRate, numIterations) -> None:
         self.optimzationStep = optimizationStep
+        self.numIterations = numIterations
+        self.initTempreture = initT
+        self.coolingRate = coolingRate
         self.root = None
         self.variables = variables
         self.BinaryOperators = BinaryOperators
@@ -28,7 +32,7 @@ class ExpressionTree:
                 node.left = StaticNode(node, left)
             else:
                 if node.parent == None:
-                    self.root = StaticNode(node.operation(left, right))
+                    self.root = StaticNode(None, node.operation(left, right))
                 return node.operation(left, right)
         elif type(node) is UnaryOperandNode:
             child = self.simplify(node.child)
@@ -36,7 +40,7 @@ class ExpressionTree:
                 return None
             else:
                 if node.parent == None:
-                    self.root = StaticNode(node.operation(child))
+                    self.root = StaticNode(None, node.operation(child))
                 return node.operation(child)
         elif type(node) is VariableNode:
             return None
@@ -127,18 +131,46 @@ class ExpressionTree:
     
     def optimizeStatic(self, target):
         statics = []
+        bestAns = []
+        bestloss = self.SqueredLoss(target)
         for node in self.nodes:
             if type(node) is StaticNode:
                 statics.append(node)
-        initialLoss = self.SqueredLoss(target)
+                bestAns.append(node.value)
+        if len(statics) == 0:
+            return
+        #print(self.SqueredLoss(target))
+        tempreture = self.initTempreture
+        changeCounter = 0
         while True:
-            step = self.generateRandomStep()
-            for i in len(statics):
-                statics[i].value = statics[i].value + step[i]
-            SecondaryLoss = self.SqueredLoss(target)
-            if SecondaryLoss - initialLoss > 0:
-                continue
-            else:
+            if tempreture < 0.001:
+                break
+            for i in range(self.numIterations):
+                if changeCounter == 100:
+                    break
+                initialLoss = self.SqueredLoss(target)
+                if bestloss > initialLoss:
+                    bestloss = initialLoss
+                    bestAns = [static.value for static in statics]
+                step = self.generateRandomStep(len(statics))
+                for i in range(len(statics)):
+                    statics[i].value = statics[i].value + step[i]
+                SecondaryLoss = self.SqueredLoss(target)
+                #print(initialLoss, SecondaryLoss)
+                Energy = initialLoss - SecondaryLoss
+                #print(initialLoss)
+                if Energy < 0:
+                    errorProb = math.exp(Energy/tempreture/ 100)
+                    #print(errorProb)
+                    if errorProb < np.random.uniform(0, 1):
+                        for i in range(len(statics)):
+                            changeCounter += 1
+                            statics[i].value = statics[i].value - step[i]
+            tempreture *= self.coolingRate
+        #print(bestAns)
+        for i in range(len(statics)):
+            statics[i].value = bestAns[i]
+
                 
 
 
@@ -146,9 +178,9 @@ class ExpressionTree:
 
 
 
-    def generateRandomStep(self):
+    def generateRandomStep(self, count):
         vector = []
-        for _ in range(len(self.variables)):
+        for _ in range(count):
             choice = np.random.randint(0, 2)
             vector.append((-1 ^ choice) * self.optimzationStep)
         return vector
@@ -157,8 +189,8 @@ class ExpressionTree:
         loss = 0
         for (variables, value) in points:
             pred = self.root.getValue(variables)
-            loss += (pred - value) ^ 2
-        return -loss
+            loss += (pred - value) * (pred - value)
+        return math.sqrt(loss / len(points))
 
     def evaluate(self, variableValues):
         try:
