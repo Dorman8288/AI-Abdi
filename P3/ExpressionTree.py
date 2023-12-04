@@ -13,7 +13,8 @@ class ExpressionTree:
         self.BinaryOperators = BinaryOperators
         self.UnaryOperators = UnaryOperators
         self.range = staticRange
-        self.continous = continuos 
+        self.continous = continuos
+        self.depth = 0 
 
     def MakeRandom(self, prob, degradationRate):
         self.nodes = []
@@ -27,12 +28,18 @@ class ExpressionTree:
             if left == None and right == None:
                 return None
             elif left == None and right != None:
+                self.nodes.remove(node.right)
                 node.right = StaticNode(node, right)
+                self.nodes.append(node.right)
             elif left != None and right == None:
+                self.nodes.remove(node.left)
                 node.left = StaticNode(node, left)
+                self.nodes.append(node.right)
             else:
                 if node.parent == None:
+                    self.nodes.remove(self.root)
                     self.root = StaticNode(None, node.operation(left, right))
+                    self.nodes.append(self.root)
                 return node.operation(left, right)
         elif type(node) is UnaryOperandNode:
             child = self.simplify(node.child)
@@ -40,16 +47,44 @@ class ExpressionTree:
                 return None
             else:
                 if node.parent == None:
+                    self.nodes.remove(self.root)
                     self.root = StaticNode(None, node.operation(child))
+                    self.nodes.append(self.root)
                 return node.operation(child)
         elif type(node) is VariableNode:
             return None
         else:
             return node.value
 
+
+    def gatherNodes(x, gatheredNodes: set):
+        gatheredNodes.add(x)
+        if type(x) == BinaryOperandNode:
+            ExpressionTree.gatherNodes(x.left, gatheredNodes)
+            ExpressionTree.gatherNodes(x.right, gatheredNodes)
+        elif type(x) == UnaryOperandNode:
+            ExpressionTree.gatherNodes(x.child, gatheredNodes)
+        else:
+            return
+
+    def MergeNodes(nodes_A, nodes_B, choice_A, choice_B):
+        buffer_A = set()
+        ExpressionTree.gatherNodes(choice_A, buffer_A)
+        buffer_B = set()
+        ExpressionTree.gatherNodes(choice_B, buffer_B)
+        for node in buffer_A:
+            nodes_A.remove(node)
+            nodes_B.append(node)
+        for node in buffer_B:
+            nodes_B.remove(node)
+            nodes_A.append(node)
+
+
     def crossover(a, b):
         a = copy.deepcopy(a)
         b = copy.deepcopy(b)
+        # print(a.display())
+        # print(b.display())
         while True:
             choice_A = np.random.randint(0, len(a.nodes))
             choice_B = np.random.randint(0, len(b.nodes))
@@ -81,6 +116,15 @@ class ExpressionTree:
         if type(parent_A) is UnaryOperandNode and type(parent_B) is UnaryOperandNode:
             parent_A.child, parent_B.child = parent_B.child, parent_A.child
         node_A.parent, node_B.parent = parent_B, parent_A
+        # print(a.display())
+        # print(b.display())
+        temp = set()
+        ExpressionTree.gatherNodes(a.root, temp)
+        a.nodes = list(temp)
+        temp = set()
+        ExpressionTree.gatherNodes(b.root, temp)
+        b.nodes = list(temp)
+        #ExpressionTree.MergeNodes(a.nodes, b.nodes, node_A, node_B)
         return a, b
 
     def Evolve(self):
@@ -107,6 +151,7 @@ class ExpressionTree:
                 node.symbol = self.UnaryOperators[operator][0]
 
     def Make(self, prob, degradationRate, depth, usedNodes: list, parent):
+        self.depth = max(depth, self.depth)
         type = np.random.binomial(1, prob)
         node = None
         if type == 1:
@@ -138,6 +183,7 @@ class ExpressionTree:
             if type(node) is StaticNode:
                 statics.append(node)
                 bestAns.append(node.value)
+        print("StaticCount: ", len(statics))
         if len(statics) == 0:
             return
         #print(self.SqueredLoss(target))

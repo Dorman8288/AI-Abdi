@@ -3,8 +3,9 @@ import math
 import matplotlib.pyplot as plt
 from queue import PriorityQueue
 import copy
+import matplotlib.axes as ax
 
-tree1 = ExpressionTree(
+tree = ExpressionTree(
     ["x"],
     [
         ("+", lambda x, y: x + y),
@@ -57,18 +58,48 @@ def GenerateRandomPopulation(configs, treeSetup):
 
 
 def reproduce(population, mutationChance):
-    children = []
+    children = set()
+    #print(len(population))
+    i = 0
     for parent1 in population:
         for parent2 in population:
             if parent1 != parent2:
+                #print(i)
+                i += 1
                 a, b = ExpressionTree.crossover(parent1, parent2)
                 chance = np.random.uniform(0, 1)
                 if chance < mutationChance:
                     a.Evolve()
-                children.append(a)
+                children.add(a)
+                chance = np.random.uniform(0, 1)
                 if chance < mutationChance:
                     b.Evolve()
-                children.append(b)
+                children.add(b)
+    return children
+
+def K_Dynamic(candidates, k):
+    print("here")
+    total = 0
+    for candidate in candidates:
+        if candidate[0] != -math.inf and candidate[0] != math.nan:
+            total += -candidate[0] / 10000
+        else:
+            candidates.remove(candidate)
+    print(total)
+    prob = 0
+    probs = []
+    population = set()
+    for candidate in candidates:
+        probs.append(prob)
+        prob += (-candidate[0] / 10000) / total
+    while len(population) != k:
+        choice = np.random.uniform(0, 1)
+        #print(item)
+        for i in range(len(probs)):
+            if probs[i] > choice:
+                population.add(candidates[i])
+                break
+    #print(queue.queue)
     return population
 
 def K_Best(candidates, k):
@@ -79,83 +110,108 @@ def K_Best(candidates, k):
             if queue.qsize() < k:
                 queue.put(item)
                 continue
-            #print(min)
-            min = queue._get()[0]
-            best = item if item[0] > min else min
+            max = queue._get()
+            #print(max)
+            best = item if item[0] > max[0] else max
             queue.put(best)
         except:
             continue
+    #print(queue.queue)
     return queue.queue
 
 def Train(initialPopulation, target, PickingStrategy, k, mutationChance):
     population = initialPopulation
+    changeCounter = 50
+    globalBestTree = None
+    globalBestLoss = math.inf
+    genNumber = 0
     while True:
-        i = 0
+        print(f"Generation: {genNumber}")
+        genNumber += 1
         candidates = []
-        print("hello")
+        i = 0
+        print("Proccessing Initial Population...")
         for tree in population:
             i += 1
-            print(i)
             try:
-                tree.optimizeStatic(target)
+                #tree.optimizeStatic(target)
                 loss = tree.SqueredLoss(target)
+                #print(i, loss)
                 #print(loss, tree.display())
-                candidates.append((loss, tree))
+                candidates.append((-loss, tree))
             except:
-                initialPopulation.remove(tree)
-        winners = PickingStrategy(candidates, k)
-        bestloss = winners[0][0]
-        print("Loss:", bestloss)
-        if bestloss < 0.01:
-            return winners[0][1]
-        #print(winners)
-        temp = []
-        for item in winners:
-            if type(item) != float:
-                temp.append(tree)
-        children = reproduce(temp, mutationChance)
-        print(children)
-        print(len(children))
+                None
+        print("Deciding Winners...")
+        #winners = K_Dynamic(candidates, k) if changeCounter <= 30 else K_Best(candidates, k)
+        winners = K_Best(candidates, k)
+        bestTree = None
+        bestloss = math.inf
+        temp = set()
         j = 0
-        for i in range(len(children)):
-            temp.append(children[i])
-            print(children[i].display())
+        for loss, tree in winners:
+            #print(j)
             j += 1
-        population = temp
+            #tree.simplify(tree.root)
+            #tree.optimizeStatic(target)
+            loss = tree.SqueredLoss(target)
+            if loss < bestloss:
+                bestTree = tree
+                bestloss = loss
+            temp.add(tree)
+        print("Best Loss in Winners:", bestloss)
+        if globalBestLoss > bestloss:
+            globalBestLoss = bestloss
+            globalBestTree = bestTree
+            changeCounter = 30
+        print("Best Global Loss:", globalBestLoss)
+        if globalBestLoss < 0.01 or changeCounter == 0:
+            return globalBestTree
+        print("Reproduction...")
+        children = reproduce(temp, mutationChance)
+        print("Max Depth in children", max([tree.depth for tree in children]))
+        print("Max nodeCount in children", max([len(tree.nodes) for tree in children]))
+        for item in children:
+            if type(item) != float:
+                temp.add(item)
+        #print(children)
+        #print(len(children))
+        changeCounter -= 1
+        population = list(temp)
+        print("************************")
 
     
         
-xrange = (-3, 3)
-yrange = (-500000, 500000)
-function = lambda x: x * x
-datapoints = np.linspace(xrange[0], xrange[1], 10)
+xrange = (1, 10)
+yrange = (-10, 10)
+function = lambda x: x * x + math.sqrt(x) + 30
+datapoints = np.linspace(xrange[0], xrange[1], (xrange[1] - xrange[0]) * 5)
 target = [({"x": x}, function(x)) for x in datapoints]
+# tree1.MakeRandom(0.999, 0.8)
+# tree2.MakeRandom(0.999, 0.8)
+# print("A: ", tree1.display())
+# print()
+# print("B: ", tree2.display())
+# print()
+# a, b = ExpressionTree.crossover(tree1, tree2)
+# print("A: ", tree1.display())
+# print()
+# print("B: ", tree2.display())
+# print()
+# print("C: ", a.display())
+# print()
+# print("D: ", b.display())
 
-tree1.MakeRandom(0.999, 0.8)
-tree2.MakeRandom(0.999, 0.8)
-print("A: ", tree1.display())
-print()
-print("B: ", tree2.display())
-print()
-a, b = ExpressionTree.crossover(tree1, tree2)
-print("A: ", tree1.display())
-print()
-print("B: ", tree2.display())
-print()
-print("C: ", a.display())
-print()
-print("D: ", b.display())
-
-#initialPopulation = GenerateRandomPopulation([(0.6, 20), (0.9, 10), (0.95, 5)], tree)
+initialPopulation = GenerateRandomPopulation([(0.6, 200), (0.9, 100), (0.95, 50)], tree)
 #print([tree.display() for tree in initialPopulation])
-#Train(initialPopulation, target, K_Best, 20, 0.2)
+ans = Train(initialPopulation, target, K_Best, 50, 0.2)
+print(ans.display())
 
+valuesAfterOptim = [ans.evaluate({"x": x}) for x in datapoints]
+correct = [function(x) for x in datapoints]
 
-
-
-# plt.ylim(yrange[0], yrange[1])
-# plt.xlim(xrange[0], xrange[1])
-# plt.plot(datapoints, valuesBeforeOptim, color="red")
-# plt.plot(datapoints, valuesAfterOptim, color="green")
-# plt.plot(datapoints, correct, color="blue")
-# plt.show()
+text = plt.text(-9.5, 8, f"x * x + rad(x) + 30\n{ans.display()}")
+plt.ylim(yrange[0], yrange[1])
+plt.xlim(xrange[0], xrange[1])
+plt.plot(datapoints, valuesAfterOptim, color="green")
+plt.plot(datapoints, correct, color="blue")
+plt.show()
