@@ -218,13 +218,6 @@ class ExpressionTree:
         for i in range(len(statics)):
             statics[i].value = bestAns[i]
 
-                
-
-
-        
-
-
-
     def generateRandomStep(self, count):
         vector = []
         for _ in range(count):
