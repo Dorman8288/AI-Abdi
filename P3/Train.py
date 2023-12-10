@@ -205,7 +205,7 @@ def Train(initialPopulation, target, xrange, yrange, k, mutationChance, DataPoin
 xrange = (-10, 10)
 yrange = (-10, 100)
 # function = lambda x: x * x + math.sqrt(x) + 30
-function = lambda x: np.sinc(x) * 10
+function = lambda x: math.tan(x) * 10
 datapoints = np.linspace(xrange[0], xrange[1], (xrange[1] - xrange[0]) * 5)
 target = [({"x": x}, function(x)) for x in datapoints]
 # tree1.MakeRandom(0.999, 0.8)
