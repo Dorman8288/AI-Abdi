@@ -31,5 +31,11 @@ correct = 0
 y = classifier.predict(testData[0])
 for i in range(len(testData[0])):
     correct += testData[1][i] == y[i]
-print(f"Accuracy: {correct/len(testData[0])}")
+print(f"Test Accuracy: {correct/len(testData[0])}")
+
+correct = 0
+y = classifier.predict(trainData[0])
+for i in range(len(trainData[0])):
+    correct += trainData[1][i] == y[i]
+print(f"train Accuracy: {correct/len(trainData[0])}")
 
