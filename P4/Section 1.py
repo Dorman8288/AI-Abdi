@@ -29,7 +29,7 @@ def GenerateRandomPoints(xrange, yrange, count):
     return x, y
 
 
-function = Circle
+function = sin
 count = 500
 xrange = (-2, 2)
 yrange = (-2, 2)
