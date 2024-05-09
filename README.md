@@ -24,3 +24,19 @@ Given the dataset's continuous fields, data discretization was crucial during de
 ![Accuracy](/P1/stats/data_split_5_percent.png)
 
 *This image illustrates data points and their respective categories.*
+
+#Project 2 - Neural Networks
+##Task Specification
+the point of this project was familirization with basic neural networks and machine learning concepts. this project consists of 6 tasks that are discussed below. for implementation i chose the pytorch library.
+
+### Task 1
+preform the privious project task with neural networks.
+
+### soloution 
+I made use of a simple feed forward neural network and was able to achive 99% test and training accuracy in just few epochs of data.
+
+### Task 2
+given a number of datapoints from a arbitarary mathematic function you should predict the function.
+
+### soloution 
+i used a
