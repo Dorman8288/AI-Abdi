@@ -183,7 +183,7 @@ class ExpressionTree:
             if type(node) is StaticNode:
                 statics.append(node)
                 bestAns.append(node.value)
-        print("StaticCount: ", len(statics))
+        #print("StaticCount: ", len(statics))
         if len(statics) == 0:
             return
         #print(self.SqueredLoss(target))

@@ -14,7 +14,7 @@ tree = ExpressionTree(
         ("+", lambda x, y: x + y),
         ("-", lambda x, y: x - y),
         ("/", lambda x, y: x / y),
-        ("*", lambda x, y: x * y)
+        ("*", lambda x, y: x * y),
     ],
     [
         ("sin", math.sin),
@@ -138,74 +138,74 @@ def Train(initialPopulation, target, xrange, yrange, k, mutationChance, DataPoin
     globalBestLoss = math.inf
     genNumber = 0
     while True:
-        if time.time() - lastupdate > 0.01:
-            print(f"Generation: {genNumber}")
-            genNumber += 1
-            candidates = []
-            i = 0
-            print("Proccessing Initial Population...")
-            for tree in population:
-                i += 1
-                try:
-                    #tree.optimizeStatic(target)
-                    loss = tree.SqueredLoss(target)
-                    #print(i, loss)
-                    #print(loss, tree.display())
-                    candidates.append((-loss, tree))
-                except:
-                    None
-            print("Deciding Winners...")
-            #winners = K_Dynamic(candidates, k) if changeCounter <= 30 else K_Best(candidates, k)
-            winners = K_Best(candidates, k)
-            bestTree = None
-            bestloss = math.inf
-            temp = set()
-            j = 0
-            for loss, tree in winners:
-                #print(j)
-                j += 1
-                #tree.simplify(tree.root)
-                #temp = set()
-                #tree.nodes = ExpressionTree.gatherNodes(tree)
-                #tree.optimizeStatic(target)
+        genNumber += 1
+        candidates = []
+        i = 0
+        print(f"Generation: {genNumber}")
+        print("Proccessing Initial Population...")
+        for tree in population:
+            i += 1
+            try:
+                tree.optimizeStatic(target)
                 loss = tree.SqueredLoss(target)
-                if loss < bestloss:
-                    bestTree = tree
-                    bestloss = loss
-                temp.add(tree)
-            #text.set_text(f"epoch: {epoch}\nbatch: {batch}\nloss: {loss}")
-            print("Best Loss in Winners:", bestloss)
-            if globalBestLoss > bestloss:
-                globalBestLoss = bestloss
-                bestTree.optimizeStatic(target)
-                globalBestTree = bestTree
-                changeCounter = 30
-            print("Best Global Loss:", globalBestLoss)
-            if globalBestLoss < 0.01 or changeCounter == 0:
-                return globalBestTree
-            print("Reproduction...")
-            children = reproduce(temp, mutationChance)
-            print("Max Depth in children", max([tree.depth for tree in children]))
-            print("Max nodeCount in children", max([len(tree.nodes) for tree in children]))
-            for item in children:
-                if type(item) != float:
-                    temp.add(item)
-            #print(children)
-            #print(len(children))
-            changeCounter -= 1
-            population = list(temp)
+                #print(i, loss)
+                #print(loss, tree.display())
+                candidates.append((-loss, tree))
+            except:
+                None
+        print("Deciding Winners...")
+        #winners = K_Dynamic(candidates, k) if changeCounter <= 30 else K_Best(candidates, k)
+        winners = K_Best(candidates, k)
+        bestTree = None
+        bestloss = math.inf
+        temp = set()
+        j = 0
+        for loss, tree in winners:
+            #print(j)
+            j += 1
+            #tree.simplify(tree.root)
+            #temp = set()
+            #tree.nodes = ExpressionTree.gatherNodes(tree)
+            #tree.optimizeStatic(target)
+            loss = tree.SqueredLoss(target)
+            if loss < bestloss:
+                bestTree = tree
+                bestloss = loss
+            temp.add(tree)
+        #text.set_text(f"epoch: {epoch}\nbatch: {batch}\nloss: {loss}")
+        print("Best Loss in Winners:", bestloss)
+        if globalBestLoss > bestloss:
+            globalBestLoss = bestloss
+            bestTree.optimizeStatic(target)
+            globalBestTree = bestTree
+            changeCounter = 30
+        print("Best Global Loss:", globalBestLoss)
+        if globalBestLoss < 0.01 or changeCounter == 0:
+            return globalBestTree
+        print("Reproduction...")
+        children = reproduce(temp, mutationChance)
+        print("Max Depth in children", max([tree.depth for tree in children]))
+        print("Max nodeCount in children", max([len(tree.nodes) for tree in children]))
+        for item in children:
+            if type(item) != float:
+                temp.add(item)
+        #print(children)
+        #print(len(children))
+        changeCounter -= 1
+        population = list(temp)
+        if time.time() - lastupdate > 0.01:
             learnedFunction.set_data(DataPoints, [globalBestTree.evaluate({"x": x}) for x in DataPoints])
             fig.canvas.draw_idle()
             fig.canvas.start_event_loop(1e-3)
             lastupdate = time.time()
-            print("************************")
+        print("************************")
 
     
         
-xrange = (-10, 10)
+xrange = (-5, 5)
 yrange = (-10, 100)
-# function = lambda x: x * x + math.sqrt(x) + 30
-function = lambda x: math.tan(x) * 10
+function = lambda x: 20* np.sinc(x)
+#function = lambda x: (x + 5) * 2 + x
 datapoints = np.linspace(xrange[0], xrange[1], (xrange[1] - xrange[0]) * 5)
 target = [({"x": x}, function(x)) for x in datapoints]
 # tree1.MakeRandom(0.999, 0.8)

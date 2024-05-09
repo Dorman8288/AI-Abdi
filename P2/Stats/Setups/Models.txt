@@ -33,3 +33,4 @@ dataLoader = DataLoader(dataset, batch_size=100)
 Model = BasicModel([1, 100, 100, 50, 1], nn.ReLU(), None).to(device)
 Train(Model, dataLoader, function, xrange, yrange, loss, learningRate)
 ##############################
+2
