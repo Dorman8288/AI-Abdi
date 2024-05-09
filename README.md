@@ -1,16 +1,16 @@
 # Assignments for Artificial Inteligence Course 
-this repository features 5 diffrent projects form diffrent areas of artificial inteligence that I did at my AI course in IUST University. a brief explanation for every project is provided in the following.
-the statements for each Project is Provided in the **Statements** folder, altough they are in Persian. I also wrote a report for some of the projects for furthur explanations and details.
+This repository showcases five distinct projects covering various areas of artificial intelligence that I completed during my studies at IUST University. A brief overview of each project is provided below.
+
+The statements for each project are available in the Statements folder, though they are in Persian. Additionally, I have written reports for some of the projects to provide further explanations and details.
 
 # Project 1 - Decision Trees
 ## Task Specification
-given data from airlines determine whether a customer is happy with their flight or not.
+The task involves analyzing data from airlines to determine customer satisfaction with their flights.
 
-i used and implemented Decision Trees for solving this classification problem. i experimented with ways of data spliting, discretizing data and optimizing hyperparameters. there exist a more detailed report of my soloution in main.ipynb.
+I utilized and implemented Decision Trees to address this classification problem. i experimented with ways of data spliting, Discretization data and optimizing hyperparameters. A comprehensive report detailing my solution can be found in main.ipynb.
 ## Project Highlights
 ### Hyperparameter Tuning
-i used prepruning for building the tree until a certain depth to avoid overfitting. this naturaly introduces hyperparameter d(maximum depth of the tree).
-one of the challenges of this task was the choice of d(Depth of the constructed tree). this is a chart for training and validation accuracy. you can visibly see where the overfitting occurs. so the best depth for our model is around 10.
+To prevent overfitting, I employed pre-pruning by limiting the tree depth to a certain level. This naturally introduced a hyperparameter, 'd' (maximum depth of the tree). Determining the appropriate depth was challenging, illustrated in the following chart showcasing training and validation accuracy. Optimal depth, approximately 10, was identified to mitigate overfitting.
 
 ![Accuracy](/P1/stats/DepthAnalysis.png)
 
@@ -18,4 +18,9 @@ one of the challenges of this task was the choice of d(Depth of the constructed 
 
 *blue dotted line - train accuracy*
 
-### Discretizing 
+### Discretization 
+Given the dataset's continuous fields, data discretization was crucial during development. I opted for an approach that involved dividing the dataset into an arbitrary number of buckets (k) to ensure homogeneous data splitting. This method categorizes data points uniformly across buckets, resulting in higher categorization levels for more common data points and fewer categories for outliers.
+
+![Accuracy](/P1/stats/data_split_5_percent.png)
+
+*This image illustrates data points and their respective categories.*
